@@ -1,6 +1,7 @@
 """Simple Brainfuck Interpreter."""
 
 import os
+from functools import reduce
 
 
 def filter_file(file):
@@ -35,51 +36,40 @@ def execute_code(code):
     """
     pointer = 0
     cells = [0]
-    output = ""
-    qnt = 1
-    flag = False
     stack = []
+    output = ""
 
     for char in code:
         if char == "[":
-            stack.append("[")
-            flag = True
-            qnt = cells[-1] if flag else 1
-        if char == "]" and stack:
+            stack.append(cells[pointer]) if not stack else stack.append(cells[pointer] // reduce((lambda x, y: x * y), stack))
+            continue
+        if char == "]":
             stack.pop()
-        if not stack:
-            flag = False
-            qnt = 1
+            continue
         if char == ">":
             pointer += 1
             if len(cells) - 1 < pointer:
                 cells.append(0)
-        elif char == "<":
-            pointer -= 1 if pointer > 0 else 0
-        elif char == "+":
-            cells[pointer] += qnt
-        elif char == "-":
-            cells[pointer] -= qnt if cells[pointer] >= 0 else 0
-        elif char == ".":
+            continue
+        if char == "<":
+            pointer -= 1 if pointer >= 0 else 0
+            continue
+        if char == "+":
+            cells[pointer] += reduce((lambda x, y: x * y), stack) if stack else 1
+            continue
+        if char == "-":
+            cells[pointer] -= reduce((lambda x, y: x * y), stack) if stack else 1
+            if cells[pointer] < 0:
+                cells[pointer] = 0
+            continue
+        if char == ".":
             output += chr(cells[pointer])
-
-#    for char in code:
-#        if char == ">":
-#            pointer += 1
-#            cells[pointer] = 0 if len(cells) < pointer else cells[pointer]
-#        elif char == "<":
-#            pointer -= 1 if pointer > 0 else 0
-#        elif char == "+":
-#            cells[pointer] += 1
-#        elif char == "-":
-#            cells[pointer] -= 1 if cells[pointer] >= 0 else 0
-#        elif char == ".":
-#            output += chr(cells[pointer])
 
     return output
 
 
 if __name__ == '__main__':
-    print(filter_file("hello_world.bf"))
-    print(execute_code("++++++++[>++[>+++++>+++++++<<-]<-]>>++++++.>-------.++.+++++++++.-----.+++."))
-    print(execute_code("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+<<<<<<<-]>>.>---.+++++++..+++.>>.<-.+++.------.--------.>>+.>++."))
+    #print(filter_file("hello_world.bf"))
+    #print(execute_code("++++++++[>++[>+++++>+++++++<<-]<-]>>++++++.>-------.++.+++++++++.-----.+++."))
+    #print(execute_code("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+<<<<<<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."))
+    print(execute_code(filter_file("factorial.bf")))
