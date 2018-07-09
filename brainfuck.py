@@ -1,7 +1,6 @@
 """Simple Brainfuck Interpreter."""
 
 import os
-from functools import reduce
 
 
 def filter_file(file):
@@ -34,42 +33,65 @@ def execute_code(code):
     :param code: string of Brainfuck code
     :return:
     """
-    pointer = 0
+    data_pointer = 0
     cells = [0]
     stack = []
-    output = ""
+    index = 0
 
-    for char in code:
-        if char == "[":
-            stack.append(cells[pointer]) if not stack else stack.append(cells[pointer] // reduce((lambda x, y: x * y), stack))
-            continue
-        if char == "]":
-            stack.pop()
-            continue
+    while index < len(code):
+        char = code[index]
+        # increment the data pointer and add cell if needed
         if char == ">":
-            pointer += 1
-            if len(cells) - 1 < pointer:
+            data_pointer += 1
+            if data_pointer >= len(cells):
                 cells.append(0)
-            continue
-        if char == "<":
-            pointer -= 1 if pointer >= 0 else 0
-            continue
-        if char == "+":
-            cells[pointer] += reduce((lambda x, y: x * y), stack) if stack else 1
-            continue
-        if char == "-":
-            cells[pointer] -= reduce((lambda x, y: x * y), stack) if stack else 1
-            if cells[pointer] < 0:
-                cells[pointer] = 0
-            continue
-        if char == ".":
-            output += chr(cells[pointer])
-
-    return output
+        # decrement the data pointer
+        elif char == "<":
+            data_pointer -= 1 if data_pointer - 1 >= 0 else 0
+        # increment the byte at the data pointer
+        elif char == "+":
+            cells[data_pointer] += 1
+        # decrement the byte at the data pointer
+        elif char == "-":
+            cells[data_pointer] -= 1 if cells[data_pointer] - 1 >= 0 else 0
+        # output the byte at the data pointer
+        elif char == ".":
+            print(chr(cells[data_pointer]), end="")
+        # accept one byte of input, storing its value in the byte at the data pointer
+        elif char == ",":
+            cells[data_pointer] = ord(input("Enter: ")[0])
+        # if the byte at the data pointer is zero, then instead of move the data pointer forward,
+        # jump it forward to the command after the matching "]" command
+        elif char == "[":
+            if cells[data_pointer] == 0:
+                stack.append("[")
+                while index < len(code):
+                    index += 1
+                    char = code[index]
+                    if char == "]":
+                        stack.pop()
+                        if not stack: break
+                    elif char == "[":
+                        stack.append("[")
+        # if the byte at the data pointer is nonzero, then instead of moving forward
+        # jump it back to the command after the matching "[" command
+        elif code[index] == "]":
+            if cells[data_pointer] != 0:
+                stack.append("]")
+                while index >= 0:
+                    index -= 1
+                    char = code[index]
+                    if char == "[":
+                        stack.pop()
+                        if not stack: break
+                    elif char == "]":
+                        stack.append("]")
+        index += 1
 
 
 if __name__ == '__main__':
-    #print(filter_file("hello_world.bf"))
-    #print(execute_code("++++++++[>++[>+++++>+++++++<<-]<-]>>++++++.>-------.++.+++++++++.-----.+++."))
-    #print(execute_code("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+<<<<<<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."))
-    print(execute_code(filter_file("factorial.bf")))
+    # execute_code("++++++++[>++[>+++++>+++++++<<-]<-]>>++++++.>-------.++.+++++++++.-----.+++.")
+    # execute_code(filter_file("hello_world.bf"))
+    # execute_code(filter_file("factorial.bf"))
+    # execute_code("++++++++[>++[>++++<-]<-]>>+.")
+    execute_code(filter_file("reverse.bf"))
