@@ -66,7 +66,7 @@ def execute_code(code):
                 try:
                     cells[data_pointer] = ord(next(inp))
                 except StopIteration:
-                    pass
+                    inp = ""
             else:
                 inp = (x for x in input("Enter: "))
                 cells[data_pointer] = ord(next(inp))
@@ -101,3 +101,4 @@ def execute_code(code):
 
 if __name__ == '__main__':
     execute_code(filter_file(sys.argv[1]))
+
