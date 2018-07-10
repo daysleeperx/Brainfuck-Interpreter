@@ -42,26 +42,26 @@ def execute_code(code):
     inp = ""
 
     while index < len(code):
-        char = code[index]
+        command = code[index]
         # increment the data pointer and add cell if needed
-        if char == ">":
+        if command == ">":
             data_pointer += 1
             if data_pointer >= len(cells):
                 cells.append(0)
         # decrement the data pointer
-        elif char == "<":
+        elif command == "<":
             data_pointer -= 1 if data_pointer - 1 >= 0 else 0
         # increment the byte at the data pointer
-        elif char == "+":
+        elif command == "+":
             cells[data_pointer] += 1
         # decrement the byte at the data pointer
-        elif char == "-":
+        elif command == "-":
             cells[data_pointer] -= 1 if cells[data_pointer] - 1 >= 0 else 0
         # output the byte at the data pointer
-        elif char == ".":
+        elif command == ".":
             print(chr(cells[data_pointer]), end="")
         # accept one byte of input, storing its value in the byte at the data pointer
-        elif char == ",":
+        elif command == ",":
             if inp:
                 try:
                     cells[data_pointer] = ord(next(inp))
@@ -72,16 +72,16 @@ def execute_code(code):
                 cells[data_pointer] = ord(next(inp))
         # if the byte at the data pointer is zero, then instead of move the data pointer forward,
         # jump it forward to the command after the matching "]" command
-        elif char == "[":
+        elif command == "[":
             if cells[data_pointer] == 0:
                 stack.append("[")
                 while index < len(code):
                     index += 1
-                    char = code[index]
-                    if char == "]":
+                    command = code[index]
+                    if command == "]":
                         stack.pop()
                         if not stack: break
-                    elif char == "[":
+                    elif command == "[":
                         stack.append("[")
         # if the byte at the data pointer is nonzero, then instead of moving forward
         # jump it back to the command after the matching "[" command
@@ -90,11 +90,11 @@ def execute_code(code):
                 stack.append("]")
                 while index >= 0:
                     index -= 1
-                    char = code[index]
-                    if char == "[":
+                    command = code[index]
+                    if command == "[":
                         stack.pop()
                         if not stack: break
-                    elif char == "]":
+                    elif command == "]":
                         stack.append("]")
         index += 1
 
