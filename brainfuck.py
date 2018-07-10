@@ -1,6 +1,8 @@
 """Simple Brainfuck Interpreter."""
 
+
 import os
+import sys
 
 
 def filter_file(file):
@@ -37,6 +39,7 @@ def execute_code(code):
     cells = [0]
     stack = []
     index = 0
+    inp = ""
 
     while index < len(code):
         char = code[index]
@@ -59,7 +62,14 @@ def execute_code(code):
             print(chr(cells[data_pointer]), end="")
         # accept one byte of input, storing its value in the byte at the data pointer
         elif char == ",":
-            cells[data_pointer] = ord(input("Enter: ")[0])
+            if inp:
+                try:
+                    cells[data_pointer] = ord(next(inp))
+                except StopIteration:
+                    pass
+            else:
+                inp = (x for x in input("Enter: "))
+                cells[data_pointer] = ord(next(inp))
         # if the byte at the data pointer is zero, then instead of move the data pointer forward,
         # jump it forward to the command after the matching "]" command
         elif char == "[":
@@ -90,8 +100,4 @@ def execute_code(code):
 
 
 if __name__ == '__main__':
-    # execute_code("++++++++[>++[>+++++>+++++++<<-]<-]>>++++++.>-------.++.+++++++++.-----.+++.")
-    # execute_code(filter_file("hello_world.bf"))
-    # execute_code(filter_file("factorial.bf"))
-    # execute_code("++++++++[>++[>++++<-]<-]>>+.")
-    execute_code(filter_file("reverse.bf"))
+    execute_code(filter_file(sys.argv[1]))
