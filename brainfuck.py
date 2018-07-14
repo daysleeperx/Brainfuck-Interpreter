@@ -62,7 +62,6 @@ def execute_code(code):
             print(chr(cells[data_pointer]), end="")
         # accept one byte of input, storing its value in the byte at the data pointer
         elif command == ",":
-            cells[data_pointer] = ord(input("Enter: ")[0])
             if inp:
                 try:
                     cells[data_pointer] = ord(next(inp))
