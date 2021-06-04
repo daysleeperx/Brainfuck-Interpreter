@@ -1,0 +1,12 @@
+package bf
+
+brief = "Brainfuck Interpreter in Idris"
+authors = "Viktor Pavlov"
+
+modules = Parser, Brainfuck
+
+main = Brainfuck
+executable = interpret
+outputdir = "."
+
+depends = contrib
