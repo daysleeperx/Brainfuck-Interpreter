@@ -59,7 +59,6 @@ implementation Show Cells where
 emptyCells: Cells
 emptyCells = C [] []
 
-
 forward: Cells -> Cells
 forward (C left []) = C (0 :: left) []
 forward (C left (x :: xs)) = C (x :: left) xs
