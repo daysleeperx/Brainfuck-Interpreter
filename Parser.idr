@@ -69,20 +69,3 @@ mutual
 public export
 manyTill: (parser: Parser a) -> (end: Parser b) -> Parser (List a)
 manyTill parser end = (end $> []) <|> (pure (::) <*> parser <*> manyTill parser end)
-
-fail : String -> Parser a
-fail msg = MkParser (\_ => [])
-
-optional: Parser a -> Parser (Maybe a)
-optional p = map Just p <|> pure Nothing
-
-notFollowedBy : Parser a -> Parser ()
-notFollowedBy p = do
-        a <- optional p
-        case a of
-             Nothing => pure ()
-             (Just x) => fail "not empty"
-
-public export
-eof: Parser ()
-eof = notFollowedBy item

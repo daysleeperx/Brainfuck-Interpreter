@@ -19,10 +19,3 @@ echo "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<
 ./interpret brainfuck/factorial.bf    # Infinite Factorial sequence. Has to be terminated! :D
 ./interpret brainfuck/reverse.bf      # Gets string from input and reverses it after pressing ENTER
 ```
-
-## Issues
-- The parser is stopping at the first unrecognised symbol, so if comments, spaces or other symbols are included in `.bf` file, the program will not run as expected
-```haskell
-parse parseCommands ",[]a."
-[([Input, Loop []], "a.")]
-```

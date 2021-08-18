@@ -2,6 +2,7 @@
 
 module Brainfuck
 import Data.List
+import Data.Strings
 import System
 import System.File
 import Parser
@@ -97,6 +98,12 @@ evalBf commands = eval emptyCells commands
                                                                 cells' <- eval cells cmds'
                                                                 eval cells' (cmd :: cmds)
 
+allowedSymbols: List Char
+allowedSymbols = ['>', '<', '+', '-', '.', ',', '[', ']']
+
+filterFile: (file: String) -> String
+filterFile file = (pack . filter (\a => elem a allowedSymbols) . unpack) file
+
 evalBfIO: (input: String) -> IO ()
 evalBfIO input = case parse parseCommands input of
                       [(cmds, _)] => do
@@ -110,4 +117,4 @@ main = do
          args <- getArgs
          let (file :: _) = drop 1 args | [] => putStrLn "No file provided!"
          (Right symbols) <- readFile file | (Left error) => putStrLn $ show error
-         evalBfIO symbols
+         (evalBfIO . filterFile) symbols
