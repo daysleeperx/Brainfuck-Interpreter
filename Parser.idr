@@ -1,5 +1,4 @@
 module Parser
-import Data.Strings
 
 public export
 data Parser : Type -> Type where
@@ -7,54 +6,60 @@ data Parser : Type -> Type where
 
 public export
 parse : Parser a -> String -> List (a, String)
-parse (MkParser f) inp = f inp
+parse (MkParser f) input = f input
 
 public export
-item: Parser Char
-item = MkParser (\input => case unpack input of
-                                [] => []
-                                (c :: chars) => [(c, pack chars)])
+item : Parser Char
+item = MkParser $ \input =>
+  case unpack input of
+    [] => []
+    c :: chars => [(c, pack chars)]
 
 public export
 implementation Functor Parser where
-    map f p = MkParser (\input => case parse p input of
-                                       [(a, s)] => [(f a, s)]
-                                       _ => [])
+  map f p = MkParser $ \input =>
+    case parse p input of
+      [(a, rest)] => [(f a, rest)]
+      _ => []
 
 public export
 implementation Applicative Parser where
-    pure v = MkParser (\input => [(v, input)])
-    pf <*> p = MkParser (\input => case parse pf input of
-                                        [(f, s)] => parse (f <$> p) s
-                                        _ => [])
+  pure value = MkParser $ \input => [(value, input)]
+  pf <*> p = MkParser $ \input =>
+    case parse pf input of
+      [(f, rest)] => parse (f <$> p) rest
+      _ => []
 
 public export
 implementation Monad Parser where
-  p >>= f = MkParser (\input => case parse p input of
-                                     [(a, s)] => parse (f a) s
-                                     _ => [])
+  p >>= f = MkParser $ \input =>
+    case parse p input of
+      [(a, rest)] => parse (f a) rest
+      _ => []
 
 public export
 implementation Alternative Parser where
-  empty = MkParser (\x => [])
-  p <|> q = MkParser (\input => case parse p input of
-                                     [(a, s)] => [(a, s)]
-                                     _ => parse q input)
+  empty = MkParser $ \_ => []
+  p <|> q = MkParser $ \input =>
+    case parse p input of
+      [(a, rest)] => [(a, rest)]
+      _ => parse q input
 
--- primitive parsers
+-- Primitive parsers
 sat : (Char -> Bool) -> Parser Char
-sat p = do x <- item
-           if p x then pure x else empty
+sat predicate = do
+  x <- item
+  if predicate x then pure x else empty
 
 public export
-char: Char -> Parser Char
-char c = sat ( == c)
+char : Char -> Parser Char
+char c = sat (== c)
 
 public export
 digit : Parser Char
 digit = sat isDigit
 
--- derived parsers
+-- Derived parsers
 mutual
   public export
   partial
@@ -67,5 +72,6 @@ mutual
   many p = some p <|> pure []
 
 public export
-manyTill: (parser: Parser a) -> (end: Parser b) -> Parser (List a)
-manyTill parser end = (end $> []) <|> (pure (::) <*> parser <*> manyTill parser end)
+manyTill : (parser : Parser a) -> (end : Parser b) -> Parser (List a)
+manyTill parser end =
+  (end $> []) <|> (pure (::) <*> parser <*> manyTill parser end)
