@@ -32,25 +32,13 @@ data Command = Forward
   | Loop (List Command)
 
 implementation Show Command where
-  show Forward = ">"
-  show Backward = "<"
-  show Increment = "+"
-  show Decrement = "-"
-  show Output = "."
-  show Input = ","
-  show (Loop f) = "["
+  show c = ?show_rhs
 
 parseCommand : Parser Command
-parseCommand = char '>' $> Forward
-  <|> char '<' $> Backward
-  <|> char '+' $> Increment
-  <|> char '-' $> Decrement
-  <|> char '.' $> Output
-  <|> char ',' $> Input
-  <|> char '[' *> Loop <$> (manyTill parseCommand $ char ']')
+parseCommand = ?parse_rhs
 
 parseCommands : Parser (List Command)
-parseCommands = many parseCommand
+parseCommands = ?rhs
 
 {-
   Brainfuck tape is representent as two lists, where current element
