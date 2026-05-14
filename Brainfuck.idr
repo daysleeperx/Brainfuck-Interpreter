@@ -31,6 +31,7 @@ data Command = Forward
   | Input
   | Loop (List Command)
 
+partial
 implementation Show Command where
   show Forward = ">"
   show Backward = "<"
@@ -38,7 +39,7 @@ implementation Show Command where
   show Decrement = "-"
   show Output = "."
   show Input = ","
-  show (Loop f) = "["
+  show (Loop xs) = "[" ++ (concatMap show xs) ++ "]"
 
 parseCommand : Parser Command
 parseCommand = char '>' $> Forward
