@@ -31,14 +31,27 @@ data Command = Forward
   | Input
   | Loop (List Command)
 
+partial
 implementation Show Command where
-  show c = ?show_rhs
+  show Forward = ">"
+  show Backward = "<"
+  show Increment = "+"
+  show Decrement = "-"
+  show Output = "."
+  show Input = ","
+  show (Loop xs) = "[" ++ (concatMap show xs) ++ "]"
 
 parseCommand : Parser Command
-parseCommand = ?parse_rhs
+parseCommand = char '>' $> Forward
+  <|> char '<' $> Backward
+  <|> char '+' $> Increment
+  <|> char '-' $> Decrement
+  <|> char '.' $> Output
+  <|> char ',' $> Input
+  <|> char '[' *> Loop <$> (manyTill parseCommand $ char ']')
 
 parseCommands : Parser (List Command)
-parseCommands = ?rhs
+parseCommands = many parseCommand
 
 {-
   Brainfuck tape is representent as two lists, where current element
